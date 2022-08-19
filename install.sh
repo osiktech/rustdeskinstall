@@ -18,6 +18,7 @@ check_keystroke() {
 
 # Get Username
 username=rustdesk
+SCRIPT_URL="https://raw.githubusercontent.com/osiktech/rustdeskinstall/refactor_install.sh"
 admintoken=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)
 
 # identify OS
@@ -146,12 +147,12 @@ fi
 chown "${username}" -R /var/log/rustdesk/
 
 # Setup Systemd to launch hbbs
-rustdesksignal=$(curl https://raw.githubusercontent.com/osiktech/rustdeskinstall/refactor_install.sh/deps/etc/systemd/system/rustdesksignal.service)
+rustdesksignal=$(curl $SCRIPT_URL/deps/etc/systemd/system/rustdesksignal.service)
 echo "${rustdesksignal}" | tee /etc/systemd/system/rustdesksignal.service > /dev/null
 sed -i "s|RUSTDESKUSER|${username}|g" /etc/systemd/system/rustdesksignal.service
 
 # Setup Systemd to launch hbbr
-rustdeskrelay=$(curl https://raw.githubusercontent.com/osiktech/rustdeskinstall/refactor_install.sh/deps/etc/systemd/system/rustdeskrelay.service)
+rustdeskrelay=$(curl $SCRIPT_URL/deps/etc/systemd/system/rustdeskrelay.service)
 echo "${rustdeskrelay}" | tee /etc/systemd/system/rustdeskrelay.service > /dev/null
 sed -i "s|RUSTDESKUSER|${username}|g" /etc/systemd/system/rustdeskrelay.service
 
@@ -180,12 +181,12 @@ select EXTRAOPT in "${EXTRA[@]}"; do
     "Yes")
 
       # Create windows install script
-      curl -L -o WindowsAgentAIOInstall.ps1 https://raw.githubusercontent.com/dinger1986/rustdeskinstall/master/WindowsAgentAIOInstall.ps1
+      curl -L -o WindowsAgentAIOInstall.ps1 $SCRIPT_URL/WindowsAgentAIOInstall.ps1
       sed -i "s|wanipreg|${wanip}|g" WindowsAgentAIOInstall.ps1
       sed -i "s|keyreg|${key}|g" WindowsAgentAIOInstall.ps1
 
       # Create linux install script
-      curl -L -o linuxclientinstall.sh https://raw.githubusercontent.com/dinger1986/rustdeskinstall/master/linuxclientinstall.sh
+      curl -L -o linuxclientinstall.sh $SCRIPT_URL/linuxclientinstall.sh
       sed -i "s|wanipreg|${wanip}|g" linuxclientinstall.sh
       sed -i "s|keyreg|${key}|g" linuxclientinstall.sh
 
@@ -216,7 +217,7 @@ select EXTRAOPT in "${EXTRA[@]}"; do
       rm gohttpserver_"${GOHTTPLATEST}"_linux_amd64.tar.gz
 
 # Setup Systemd to launch Go HTTP Server
-      gohttpserver="$(curl https://raw.githubusercontent.com/osiktech/rustdeskinstall/refactor_install.sh/deps/etc/systemd/system/gohttpserver.service)"
+      gohttpserver="$(curl $SCRIPT_URL/deps/etc/systemd/system/gohttpserver.service)"
       echo "${gohttpserver}" | tee /etc/systemd/system/gohttpserver.service > /dev/null
       sed -i "s|RUSTDESKUSER|${username}|g" /etc/systemd/system/gohttpserver.service
 
