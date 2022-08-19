@@ -148,14 +148,16 @@ chown "${username}" -R /var/log/rustdesk/
 # Setup Systemd to launch hbbs
 rustdesksignal=$(curl https://raw.githubusercontent.com/osiktech/rustdeskinstall/refactor_install.sh/deps/etc/systemd/system/rustdesksignal.service)
 echo "${rustdesksignal}" | tee /etc/systemd/system/rustdesksignal.service > /dev/null
-systemctl daemon-reload
-systemctl enable rustdesksignal.service
-systemctl start rustdesksignal.service
+sed -i "s|RUSTDESKUSER|${username}|g" /etc/systemd/system/rustdesksignal.service
 
 # Setup Systemd to launch hbbr
 rustdeskrelay=$(curl https://raw.githubusercontent.com/osiktech/rustdeskinstall/refactor_install.sh/deps/etc/systemd/system/rustdeskrelay.service)
 echo "${rustdeskrelay}" | tee /etc/systemd/system/rustdeskrelay.service > /dev/null
+sed -i "s|RUSTDESKUSER|${username}|g" /etc/systemd/system/rustdeskrelay.service
+
 systemctl daemon-reload
+systemctl enable rustdesksignal.service
+systemctl start rustdesksignal.service
 systemctl enable rustdeskrelay.service
 systemctl start rustdeskrelay.service
 
@@ -216,6 +218,8 @@ select EXTRAOPT in "${EXTRA[@]}"; do
 # Setup Systemd to launch Go HTTP Server
       gohttpserver="$(curl hhttps://raw.githubusercontent.com/osiktech/rustdeskinstall/refactor_install.sh/deps/etc/systemd/system/gohttpserver.service)"
       echo "${gohttpserver}" | tee /etc/systemd/system/gohttpserver.service > /dev/null
+      sed -i "s|RUSTDESKUSER|${username}|g" /etc/systemd/system/gohttpserver.service
+
       systemctl daemon-reload
       systemctl enable gohttpserver.service
       systemctl start gohttpserver.service
