@@ -214,7 +214,6 @@ select EXTRAOPT in "${EXTRA[@]}"; do
       systemctl enable gohttpserver.service
       systemctl start gohttpserver.service
 
-
       echo -e "Your IP/DNS Address is ${WANIP}"
       echo -e "Your public key is ${KEY}"
       echo -e "Install Rustdesk on your machines and change your public key and IP/DNS name to the above"
