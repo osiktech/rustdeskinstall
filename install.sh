@@ -218,6 +218,7 @@ select EXTRAOPT in "${EXTRA[@]}"; do
       gohttpserver="$(curl $SCRIPT_URL/deps/etc/systemd/system/gohttpserver.service)"
       echo "${gohttpserver}" | tee /etc/systemd/system/gohttpserver.service > /dev/null
       sed -i "s|RUSTDESKUSER|${USERNAME}|g" /etc/systemd/system/gohttpserver.service
+      sed -i "s|ADMINTOKEN|${ADMINTOKEN}|g" /etc/systemd/system/gohttpserver.service
 
       systemctl daemon-reload
       systemctl enable gohttpserver.service
