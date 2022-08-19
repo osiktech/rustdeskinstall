@@ -103,8 +103,8 @@ done
 
 # Make Folder /opt/rustdesk/
 if [ ! -d "/opt/rustdesk" ]; then
-    echo "Creating /opt/rustdesk"
-    sudo mkdir -p /opt/rustdesk/
+  echo "Creating /opt/rustdesk"
+  sudo mkdir -p /opt/rustdesk/
 fi
 sudo chown "${uname}" -R /opt/rustdesk
 cd /opt/rustdesk/ || exit 1
@@ -116,8 +116,8 @@ unzip rustdesk-server-linux-x64.zip
 
 # Make Folder /var/log/rustdesk/
 if [ ! -d "/var/log/rustdesk" ]; then
-    echo "Creating /var/log/rustdesk"
-    sudo mkdir -p /var/log/rustdesk/
+  echo "Creating /var/log/rustdesk"
+  sudo mkdir -p /var/log/rustdesk/
 fi
 sudo chown "${uname}" -R /var/log/rustdesk/
 
@@ -186,44 +186,44 @@ rm rustdesk-server-linux-x64.zip
 PS3='Please choose if you want to download configs and install HTTP server:'
 EXTRA=("Yes" "No")
 select EXTRAOPT in "${EXTRA[@]}"; do
-case $EXTRAOPT in
-"Yes")
+  case $EXTRAOPT in
+    "Yes")
 
-# Create windows install script
-wget https://raw.githubusercontent.com/dinger1986/rustdeskinstall/master/WindowsAgentAIOInstall.ps1
-sudo sed -i "s|wanipreg|${wanip}|g" WindowsAgentAIOInstall.ps1
-sudo sed -i "s|keyreg|${key}|g" WindowsAgentAIOInstall.ps1
+      # Create windows install script
+      wget https://raw.githubusercontent.com/dinger1986/rustdeskinstall/master/WindowsAgentAIOInstall.ps1
+      sudo sed -i "s|wanipreg|${wanip}|g" WindowsAgentAIOInstall.ps1
+      sudo sed -i "s|keyreg|${key}|g" WindowsAgentAIOInstall.ps1
 
-# Create linux install script
-wget https://raw.githubusercontent.com/dinger1986/rustdeskinstall/master/linuxclientinstall.sh
-sudo sed -i "s|wanipreg|${wanip}|g" linuxclientinstall.sh
-sudo sed -i "s|keyreg|${key}|g" linuxclientinstall.sh
+      # Create linux install script
+      wget https://raw.githubusercontent.com/dinger1986/rustdeskinstall/master/linuxclientinstall.sh
+      sudo sed -i "s|wanipreg|${wanip}|g" linuxclientinstall.sh
+      sudo sed -i "s|keyreg|${key}|g" linuxclientinstall.sh
 
-# Download and install gohttpserver
-# Make Folder /opt/gohttp/
-if [ ! -d "/opt/gohttp" ]; then
-    echo "Creating /opt/gohttp"
-    sudo mkdir -p /opt/gohttp/
-	sudo mkdir -p /opt/gohttp/public
-fi
-sudo chown "${uname}" -R /opt/gohttp
-cd /opt/gohttp
-GOHTTPLATEST=$(curl https://api.github.com/repos/codeskyblue/gohttpserver/releases/latest -s | grep "tag_name"| awk '{print substr($2, 2, length($2)-3) }')
-wget "https://github.com/codeskyblue/gohttpserver/releases/download/${GOHTTPLATEST}/gohttpserver_${GOHTTPLATEST}_linux_amd64.tar.gz"
-tar -xf  gohttpserver_${GOHTTPLATEST}_linux_amd64.tar.gz
+      # Download and install gohttpserver
+      # Make Folder /opt/gohttp/
+      if [ ! -d "/opt/gohttp" ]; then
+        echo "Creating /opt/gohttp"
+        sudo mkdir -p /opt/gohttp/
+        sudo mkdir -p /opt/gohttp/public
+      fi
+      sudo chown "${uname}" -R /opt/gohttp
+      cd /opt/gohttp
+      GOHTTPLATEST=$(curl https://api.github.com/repos/codeskyblue/gohttpserver/releases/latest -s | grep "tag_name"| awk '{print substr($2, 2, length($2)-3) }')
+      wget "https://github.com/codeskyblue/gohttpserver/releases/download/${GOHTTPLATEST}/gohttpserver_${GOHTTPLATEST}_linux_amd64.tar.gz"
+      tar -xf  gohttpserver_${GOHTTPLATEST}_linux_amd64.tar.gz
 
-# Copy Rustdesk install scripts to folder
-mv /opt/rustdesk/WindowsAgentAIOInstall.ps1 /opt/gohttp/public/
-mv /opt/rustdesk/linuxclientinstall.sh /opt/gohttp/public/
+      # Copy Rustdesk install scripts to folder
+      mv /opt/rustdesk/WindowsAgentAIOInstall.ps1 /opt/gohttp/public/
+      mv /opt/rustdesk/linuxclientinstall.sh /opt/gohttp/public/
 
-# Make gohttp log folders
-if [ ! -d "/var/log/gohttp" ]; then
-    echo "Creating /var/log/gohttp"
-    sudo mkdir -p /var/log/gohttp/
-fi
-sudo chown "${uname}" -R /var/log/gohttp/
+      # Make gohttp log folders
+      if [ ! -d "/var/log/gohttp" ]; then
+        echo "Creating /var/log/gohttp"
+        sudo mkdir -p /var/log/gohttp/
+      fi
+      sudo chown "${uname}" -R /var/log/gohttp/
 
-rm gohttpserver_"${GOHTTPLATEST}"_linux_amd64.tar.gz
+      rm gohttpserver_"${GOHTTPLATEST}"_linux_amd64.tar.gz
 
 # Setup Systemd to launch Go HTTP Server
 gohttpserver="$(cat << EOF
@@ -245,46 +245,48 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 )"
-echo "${gohttpserver}" | sudo tee /etc/systemd/system/gohttpserver.service > /dev/null
-sudo systemctl daemon-reload
-sudo systemctl enable gohttpserver.service
-sudo systemctl start gohttpserver.service
+      echo "${gohttpserver}" | sudo tee /etc/systemd/system/gohttpserver.service > /dev/null
+      sudo systemctl daemon-reload
+      sudo systemctl enable gohttpserver.service
+      sudo systemctl start gohttpserver.service
 
 
-echo -e "Your IP/DNS Address is ${wanip}"
-echo -e "Your public key is ${key}"
-echo -e "Install Rustdesk on your machines and change your public key and IP/DNS name to the above"
-echo -e "You can access your install scripts for clients by going to http://${wanip}:8000"
-echo -e "Username is admin and password is ${admintoken}"
+      echo -e "Your IP/DNS Address is ${wanip}"
+      echo -e "Your public key is ${key}"
+      echo -e "Install Rustdesk on your machines and change your public key and IP/DNS name to the above"
+      echo -e "You can access your install scripts for clients by going to http://${wanip}:8000"
+      echo -e "Username is admin and password is ${admintoken}"
 
-echo "Press any key to finish install"
-while [ true ] ; do
-read -t 3 -n 1
-if [ $? = 0 ] ; then
-exit ;
-else
-echo "waiting for the keypress"
-fi
-done
-break
-;;
+      echo "Press any key to finish install"
+      while [ true ] ; do
+        read -t 3 -n 1
+        if [ $? = 0 ] ; then
+          exit ;
+        else
+          echo "waiting for the keypress"
+        fi
+      done
+    break
+    ;;
 
-"No")
-echo -e "Your IP/DNS Address is ${wanip}"
-echo -e "Your public key is ${key}"
-echo -e "Install Rustdesk on your machines and change your public key and IP/DNS name to the above"
+    "No")
+      echo -e "Your IP/DNS Address is ${wanip}"
+      echo -e "Your public key is ${key}"
+      echo -e "Install Rustdesk on your machines and change your public key and IP/DNS name to the above"
 
-echo "Press any key to finish install"
-while [ true ] ; do
-read -t 3 -n 1
-if [ $? = 0 ] ; then
-exit ;
-else
-echo "waiting for the keypress"
-fi
-done
-break
-;;
-*) echo "invalid option $REPLY";;
-esac
+      echo "Press any key to finish install"
+      while [ true ] ; do
+        read -t 3 -n 1
+        if [ $? = 0 ] ; then
+          exit ;
+        else
+          echo "waiting for the keypress"
+        fi
+      done
+
+    break
+    ;;
+
+    *) echo "invalid option $REPLY";;
+  esac
 done
