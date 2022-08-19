@@ -157,10 +157,8 @@ echo "${rustdeskrelay}" | tee /etc/systemd/system/rustdeskrelay.service > /dev/n
 sed -i "s|RUSTDESKUSER|${username}|g" /etc/systemd/system/rustdeskrelay.service
 
 systemctl daemon-reload
-systemctl enable rustdesksignal.service
-systemctl start rustdesksignal.service
-systemctl enable rustdeskrelay.service
-systemctl start rustdeskrelay.service
+systemctl enable rustdesksignal.service rustdeskrelay.service
+systemctl start rustdesksignal.service rustdeskrelay.service
 
 while ! [[ $CHECK_RUSTDESK_READY ]]; do
   CHECK_RUSTDESK_READY=$(systemctl status rustdeskrelay.service | grep "Active: active (running)")
@@ -200,7 +198,7 @@ select EXTRAOPT in "${EXTRA[@]}"; do
       cd /opt/gohttp
       GOHTTPLATEST=$(curl https://api.github.com/repos/codeskyblue/gohttpserver/releases/latest -s | grep "tag_name"| awk '{print substr($2, 2, length($2)-3) }')
       curl -L -o gohttpserver_${GOHTTPLATEST}_linux_amd64.tar.gz https://github.com/codeskyblue/gohttpserver/releases/download/${GOHTTPLATEST}/gohttpserver_${GOHTTPLATEST}_linux_amd64.tar.gz
-      tar -xf  gohttpserver_${GOHTTPLATEST}_linux_amd64.tar.gz
+      tar -xf  gohttpserver_${GOHTTPLATEST}_linux_amd64.tar.gz -C /opt/gohttp/
 
       # Copy Rustdesk install scripts to folder
       mv /opt/rustdesk/WindowsAgentAIOInstall.ps1 /opt/gohttp/public/
