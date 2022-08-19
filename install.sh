@@ -194,7 +194,6 @@ select EXTRAOPT in "${EXTRA[@]}"; do
       # Make Folder /opt/gohttp/
       if [ ! -d "/opt/gohttp" ]; then
         echo "Creating /opt/gohttp"
-        mkdir -p /opt/gohttp/
         mkdir -p /opt/gohttp/public
       fi
       chown "${username}" -R /opt/gohttp
