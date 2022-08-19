@@ -16,6 +16,15 @@ check_keystroke() {
   done
 }
 
+create_dir() {
+  LOGDIR=$1
+  if [ ! -d "$LOGDIR" ]; then
+    echo "Creating $LOGDIR"
+    mkdir -p $LOGDIR
+  fi
+  chown "${USERNAME}" -R $LOGDIR
+}
+
 # set username used for rustdesk
 USERNAME=rustdesk
 USERHOME=/opt/$USERHOME
@@ -128,11 +137,7 @@ select WANOPT in "${WAN[@]}"; do
 done
 
 # Make Folder $USERHOME/
-if [ ! -d "$USERHOME" ]; then
-  echo "Creating $USERHOME"
-  mkdir -p $USERHOME/
-fi
-chown "${USERNAME}" -R $USERHOME
+create_dir $USERHOME
 cd $USERHOME/ || exit 1
 
 #Download latest version of Rustdesk
@@ -140,12 +145,7 @@ RDLATEST=$(curl https://api.github.com/repos/rustdesk/rustdesk-server/releases/l
 curl -L -o rustdesk-server-linux-x64.zip https://github.com/rustdesk/rustdesk-server/releases/download/${RDLATEST}/rustdesk-server-linux-x64.zip
 unzip rustdesk-server-linux-x64.zip
 
-# Make Folder /var/log/rustdesk/
-if [ ! -d "/var/log/rustdesk" ]; then
-  echo "Creating /var/log/rustdesk"
-  mkdir -p /var/log/rustdesk/
-fi
-chown "${USERNAME}" -R /var/log/rustdesk/
+create_dir "/var/log/rustdesk"
 
 # Setup Systemd to launch hbbs
 rustdesksignal=$(curl $SCRIPT_URL/deps/etc/systemd/system/rustdesksignal.service)
@@ -190,12 +190,7 @@ select EXTRAOPT in "${EXTRA[@]}"; do
       sed -i "s|keyreg|${KEY}|g" linuxclientinstall.sh
 
       # Download and install gohttpserver
-      # Make Folder /opt/gohttp/
-      if [ ! -d "/opt/gohttp" ]; then
-        echo "Creating /opt/gohttp"
-        mkdir -p /opt/gohttp/public
-      fi
-      chown "${USERNAME}" -R /opt/gohttp
+      create_dir /opt/gohttp/public
       cd /opt/gohttp
       GOHTTPLATEST=$(curl https://api.github.com/repos/codeskyblue/gohttpserver/releases/latest -s | grep "tag_name"| awk '{print substr($2, 2, length($2)-3) }')
       curl -L -o gohttpserver_${GOHTTPLATEST}_linux_amd64.tar.gz https://github.com/codeskyblue/gohttpserver/releases/download/${GOHTTPLATEST}/gohttpserver_${GOHTTPLATEST}_linux_amd64.tar.gz
@@ -205,12 +200,7 @@ select EXTRAOPT in "${EXTRA[@]}"; do
       mv $USERHOME/WindowsAgentAIOInstall.ps1 /opt/gohttp/public/
       mv $USERHOME/linuxclientinstall.sh /opt/gohttp/public/
 
-      # Make gohttp log folders
-      if [ ! -d "/var/log/gohttp" ]; then
-        echo "Creating /var/log/gohttp"
-        mkdir -p /var/log/gohttp/
-      fi
-      chown "${USERNAME}" -R /var/log/gohttp/
+      create_dir "/var/log/gohttp"
 
       rm gohttpserver_"${GOHTTPLATEST}"_linux_amd64.tar.gz
 
