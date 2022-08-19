@@ -93,7 +93,7 @@ fi
 
 # Create user if not existing
 getent passwd | grep $username
-if [ $? -eq 0 ]
+if [ $? -eq 0 ]; then
   # ToDo implement proper check to use home dir etc.
   echo "User $username already exists!"
   exit 1;
