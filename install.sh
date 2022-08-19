@@ -17,7 +17,7 @@ check_keystroke() {
 }
 
 # Get Username
-uname=$(whoami)
+username=rustdesk
 admintoken=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)
 
 # identify OS
@@ -72,19 +72,17 @@ fi
 # Setup prereqs for server
 # common named prereqs
 PREREQ="curl unzip tar"
-PREREQDEB="dnsutils"
-PREREQRPM="bind-utils"
 
 echo "Installing prerequisites"
 if [ "${ID}" = "debian" ] || [ "$OS" = "Ubuntu" ] || [ "$OS" = "Debian" ]  || [ "${UPSTREAM_ID}" = "ubuntu" ] || [ "${UPSTREAM_ID}" = "debian" ]; then
   apt-get update
-  apt-get install -y  ${PREREQ} ${PREREQDEB} # git
+  apt-get install -y  ${PREREQ}# git
 elif [ "$OS" = "CentOS" ] || [ "$OS" = "RedHat" ]   || [ "${UPSTREAM_ID}" = "rhel" ] ; then
   # opensuse 15.4 fails to run the relay service and hangs waiting for it
   # needs more work before it can be enabled
   # || [ "${UPSTREAM_ID}" = "suse" ]
   yum update -y
-  yum install -y  ${PREREQ} ${PREREQRPM} # git
+  yum install -y  ${PREREQ}# git
 else
   echo "Unsupported OS"
   # here you could ask the user for permission to try and install anyway
@@ -93,13 +91,23 @@ else
   exit 1
 fi
 
+# Create user if not existing
+getent passwd | grep $username
+if [ $? -eq 0 ]
+  # ToDo implement proper check to use home dir etc.
+  echo "User $username already exists!"
+  exit 1;
+else
+  useradd -c "RustDesk server" -d /opt/rustdesk -s /bin/false -m $username
+fi
+
 # Choice for DNS or IP
 PS3='Choose your preferred option, IP or DNS/Domain:'
 WAN=("IP" "DNS/Domain")
 select WANOPT in "${WAN[@]}"; do
   case $WANOPT in
     "IP")
-      wanip=$(dig @resolver4.opendns.com myip.opendns.com +short)
+      wanip=$(curl -4 https://ifconfig.co)
     break
     ;;
 
@@ -122,7 +130,7 @@ if [ ! -d "/opt/rustdesk" ]; then
   echo "Creating /opt/rustdesk"
   mkdir -p /opt/rustdesk/
 fi
-chown "${uname}" -R /opt/rustdesk
+chown "${username}" -R /opt/rustdesk
 cd /opt/rustdesk/ || exit 1
 
 #Download latest version of Rustdesk
@@ -135,7 +143,7 @@ if [ ! -d "/var/log/rustdesk" ]; then
   echo "Creating /var/log/rustdesk"
   mkdir -p /var/log/rustdesk/
 fi
-chown "${uname}" -R /var/log/rustdesk/
+chown "${username}" -R /var/log/rustdesk/
 
 # Setup Systemd to launch hbbs
 rustdesksignal="$(cat << EOF
@@ -146,8 +154,8 @@ Type=simple
 LimitNOFILE=1000000
 ExecStart=/opt/rustdesk/hbbs -k _
 WorkingDirectory=/opt/rustdesk/
-User=${uname}
-Group=${uname}
+User=${username}
+Group=${username}
 Restart=always
 StandardOutput=append:/var/log/rustdesk/signalserver.log
 StandardError=append:/var/log/rustdesk/signalserver.error
@@ -171,8 +179,8 @@ Type=simple
 LimitNOFILE=1000000
 ExecStart=/opt/rustdesk/hbbr -k _
 WorkingDirectory=/opt/rustdesk/
-User=${uname}
-Group=${uname}
+User=${username}
+Group=${username}
 Restart=always
 StandardOutput=append:/var/log/rustdesk/relayserver.log
 StandardError=append:/var/log/rustdesk/relayserver.error
@@ -222,7 +230,7 @@ select EXTRAOPT in "${EXTRA[@]}"; do
         mkdir -p /opt/gohttp/
         mkdir -p /opt/gohttp/public
       fi
-      chown "${uname}" -R /opt/gohttp
+      chown "${username}" -R /opt/gohttp
       cd /opt/gohttp
       GOHTTPLATEST=$(curl https://api.github.com/repos/codeskyblue/gohttpserver/releases/latest -s | grep "tag_name"| awk '{print substr($2, 2, length($2)-3) }')
       curl -L -o gohttpserver_${GOHTTPLATEST}_linux_amd64.tar.gz https://github.com/codeskyblue/gohttpserver/releases/download/${GOHTTPLATEST}/gohttpserver_${GOHTTPLATEST}_linux_amd64.tar.gz
@@ -237,7 +245,7 @@ select EXTRAOPT in "${EXTRA[@]}"; do
         echo "Creating /var/log/gohttp"
         mkdir -p /var/log/gohttp/
       fi
-      chown "${uname}" -R /var/log/gohttp/
+      chown "${username}" -R /var/log/gohttp/
 
       rm gohttpserver_"${GOHTTPLATEST}"_linux_amd64.tar.gz
 
@@ -250,8 +258,8 @@ Type=simple
 LimitNOFILE=1000000
 ExecStart=/opt/gohttp/gohttpserver -r ./public --port 8000 --auth-type http --auth-http admin:${admintoken}
 WorkingDirectory=/opt/gohttp/
-User=${uname}
-Group=${uname}
+User=${username}
+Group=${username}
 Restart=always
 StandardOutput=append:/var/log/gohttp/gohttpserver.log
 StandardError=append:/var/log/gohttp/gohttpserver.error
