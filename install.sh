@@ -216,7 +216,7 @@ select EXTRAOPT in "${EXTRA[@]}"; do
       rm gohttpserver_"${GOHTTPLATEST}"_linux_amd64.tar.gz
 
 # Setup Systemd to launch Go HTTP Server
-      gohttpserver="$(curl hhttps://raw.githubusercontent.com/osiktech/rustdeskinstall/refactor_install.sh/deps/etc/systemd/system/gohttpserver.service)"
+      gohttpserver="$(curl https://raw.githubusercontent.com/osiktech/rustdeskinstall/refactor_install.sh/deps/etc/systemd/system/gohttpserver.service)"
       echo "${gohttpserver}" | tee /etc/systemd/system/gohttpserver.service > /dev/null
       sed -i "s|RUSTDESKUSER|${username}|g" /etc/systemd/system/gohttpserver.service
 
