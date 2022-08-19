@@ -55,7 +55,7 @@ fi
 
 # Setup prereqs for server
 # common named prereqs
-PREREQ="curl wget unzip tar"
+PREREQ="curl unzip tar"
 PREREQDEB="dnsutils"
 PREREQRPM="bind-utils"
 
@@ -111,7 +111,7 @@ cd /opt/rustdesk/ || exit 1
 
 #Download latest version of Rustdesk
 RDLATEST=$(curl https://api.github.com/repos/rustdesk/rustdesk-server/releases/latest -s | grep "tag_name"| awk '{print substr($2, 2, length($2)-3) }')
-wget "https://github.com/rustdesk/rustdesk-server/releases/download/${RDLATEST}/rustdesk-server-linux-x64.zip"
+curl -L -o rustdesk-server-linux-x64.zip https://github.com/rustdesk/rustdesk-server/releases/download/${RDLATEST}/rustdesk-server-linux-x64.zip
 unzip rustdesk-server-linux-x64.zip
 
 # Make Folder /var/log/rustdesk/
@@ -190,12 +190,12 @@ select EXTRAOPT in "${EXTRA[@]}"; do
     "Yes")
 
       # Create windows install script
-      wget https://raw.githubusercontent.com/dinger1986/rustdeskinstall/master/WindowsAgentAIOInstall.ps1
+      curl -L -o WindowsAgentAIOInstall.ps1 https://raw.githubusercontent.com/dinger1986/rustdeskinstall/master/WindowsAgentAIOInstall.ps1
       sudo sed -i "s|wanipreg|${wanip}|g" WindowsAgentAIOInstall.ps1
       sudo sed -i "s|keyreg|${key}|g" WindowsAgentAIOInstall.ps1
 
       # Create linux install script
-      wget https://raw.githubusercontent.com/dinger1986/rustdeskinstall/master/linuxclientinstall.sh
+      curl -L -o linuxclientinstall.sh https://raw.githubusercontent.com/dinger1986/rustdeskinstall/master/linuxclientinstall.sh
       sudo sed -i "s|wanipreg|${wanip}|g" linuxclientinstall.sh
       sudo sed -i "s|keyreg|${key}|g" linuxclientinstall.sh
 
@@ -209,7 +209,7 @@ select EXTRAOPT in "${EXTRA[@]}"; do
       sudo chown "${uname}" -R /opt/gohttp
       cd /opt/gohttp
       GOHTTPLATEST=$(curl https://api.github.com/repos/codeskyblue/gohttpserver/releases/latest -s | grep "tag_name"| awk '{print substr($2, 2, length($2)-3) }')
-      wget "https://github.com/codeskyblue/gohttpserver/releases/download/${GOHTTPLATEST}/gohttpserver_${GOHTTPLATEST}_linux_amd64.tar.gz"
+      curl -L -o gohttpserver_${GOHTTPLATEST}_linux_amd64.tar.gz https://github.com/codeskyblue/gohttpserver/releases/download/${GOHTTPLATEST}/gohttpserver_${GOHTTPLATEST}_linux_amd64.tar.gz
       tar -xf  gohttpserver_${GOHTTPLATEST}_linux_amd64.tar.gz
 
       # Copy Rustdesk install scripts to folder
