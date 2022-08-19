@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [[ $EUID -ne 0 ]]; then
+  echo "This script must be run as root"
+  exit 1
+fi
+
 # Get Username
 uname=$(whoami)
 admintoken=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)
@@ -61,14 +66,14 @@ PREREQRPM="bind-utils"
 
 echo "Installing prerequisites"
 if [ "${ID}" = "debian" ] || [ "$OS" = "Ubuntu" ] || [ "$OS" = "Debian" ]  || [ "${UPSTREAM_ID}" = "ubuntu" ] || [ "${UPSTREAM_ID}" = "debian" ]; then
-  sudo apt-get update
-  sudo apt-get install -y  ${PREREQ} ${PREREQDEB} # git
+  apt-get update
+  apt-get install -y  ${PREREQ} ${PREREQDEB} # git
 elif [ "$OS" = "CentOS" ] || [ "$OS" = "RedHat" ]   || [ "${UPSTREAM_ID}" = "rhel" ] ; then
   # opensuse 15.4 fails to run the relay service and hangs waiting for it
   # needs more work before it can be enabled
   # || [ "${UPSTREAM_ID}" = "suse" ]
-  sudo yum update -y
-  sudo yum install -y  ${PREREQ} ${PREREQRPM} # git
+  yum update -y
+  yum install -y  ${PREREQ} ${PREREQRPM} # git
 else
   echo "Unsupported OS"
   # here you could ask the user for permission to try and install anyway
@@ -104,9 +109,9 @@ done
 # Make Folder /opt/rustdesk/
 if [ ! -d "/opt/rustdesk" ]; then
   echo "Creating /opt/rustdesk"
-  sudo mkdir -p /opt/rustdesk/
+  mkdir -p /opt/rustdesk/
 fi
-sudo chown "${uname}" -R /opt/rustdesk
+chown "${uname}" -R /opt/rustdesk
 cd /opt/rustdesk/ || exit 1
 
 #Download latest version of Rustdesk
@@ -117,9 +122,9 @@ unzip rustdesk-server-linux-x64.zip
 # Make Folder /var/log/rustdesk/
 if [ ! -d "/var/log/rustdesk" ]; then
   echo "Creating /var/log/rustdesk"
-  sudo mkdir -p /var/log/rustdesk/
+  mkdir -p /var/log/rustdesk/
 fi
-sudo chown "${uname}" -R /var/log/rustdesk/
+chown "${uname}" -R /var/log/rustdesk/
 
 # Setup Systemd to launch hbbs
 rustdesksignal="$(cat << EOF
@@ -141,10 +146,10 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 )"
-echo "${rustdesksignal}" | sudo tee /etc/systemd/system/rustdesksignal.service > /dev/null
-sudo systemctl daemon-reload
-sudo systemctl enable rustdesksignal.service
-sudo systemctl start rustdesksignal.service
+echo "${rustdesksignal}" | tee /etc/systemd/system/rustdesksignal.service > /dev/null
+systemctl daemon-reload
+systemctl enable rustdesksignal.service
+systemctl start rustdesksignal.service
 
 # Setup Systemd to launch hbbr
 rustdeskrelay="$(cat << EOF
@@ -166,13 +171,13 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 )"
-echo "${rustdeskrelay}" | sudo tee /etc/systemd/system/rustdeskrelay.service > /dev/null
-sudo systemctl daemon-reload
-sudo systemctl enable rustdeskrelay.service
-sudo systemctl start rustdeskrelay.service
+echo "${rustdeskrelay}" | tee /etc/systemd/system/rustdeskrelay.service > /dev/null
+systemctl daemon-reload
+systemctl enable rustdeskrelay.service
+systemctl start rustdeskrelay.service
 
 while ! [[ $CHECK_RUSTDESK_READY ]]; do
-  CHECK_RUSTDESK_READY=$(sudo systemctl status rustdeskrelay.service | grep "Active: active (running)")
+  CHECK_RUSTDESK_READY=$(systemctl status rustdeskrelay.service | grep "Active: active (running)")
   echo -ne "Rustdesk Relay not ready yet...${NC}\n"
   sleep 3
 done
@@ -191,22 +196,22 @@ select EXTRAOPT in "${EXTRA[@]}"; do
 
       # Create windows install script
       curl -L -o WindowsAgentAIOInstall.ps1 https://raw.githubusercontent.com/dinger1986/rustdeskinstall/master/WindowsAgentAIOInstall.ps1
-      sudo sed -i "s|wanipreg|${wanip}|g" WindowsAgentAIOInstall.ps1
-      sudo sed -i "s|keyreg|${key}|g" WindowsAgentAIOInstall.ps1
+      sed -i "s|wanipreg|${wanip}|g" WindowsAgentAIOInstall.ps1
+      sed -i "s|keyreg|${key}|g" WindowsAgentAIOInstall.ps1
 
       # Create linux install script
       curl -L -o linuxclientinstall.sh https://raw.githubusercontent.com/dinger1986/rustdeskinstall/master/linuxclientinstall.sh
-      sudo sed -i "s|wanipreg|${wanip}|g" linuxclientinstall.sh
-      sudo sed -i "s|keyreg|${key}|g" linuxclientinstall.sh
+      sed -i "s|wanipreg|${wanip}|g" linuxclientinstall.sh
+      sed -i "s|keyreg|${key}|g" linuxclientinstall.sh
 
       # Download and install gohttpserver
       # Make Folder /opt/gohttp/
       if [ ! -d "/opt/gohttp" ]; then
         echo "Creating /opt/gohttp"
-        sudo mkdir -p /opt/gohttp/
-        sudo mkdir -p /opt/gohttp/public
+        mkdir -p /opt/gohttp/
+        mkdir -p /opt/gohttp/public
       fi
-      sudo chown "${uname}" -R /opt/gohttp
+      chown "${uname}" -R /opt/gohttp
       cd /opt/gohttp
       GOHTTPLATEST=$(curl https://api.github.com/repos/codeskyblue/gohttpserver/releases/latest -s | grep "tag_name"| awk '{print substr($2, 2, length($2)-3) }')
       curl -L -o gohttpserver_${GOHTTPLATEST}_linux_amd64.tar.gz https://github.com/codeskyblue/gohttpserver/releases/download/${GOHTTPLATEST}/gohttpserver_${GOHTTPLATEST}_linux_amd64.tar.gz
@@ -219,9 +224,9 @@ select EXTRAOPT in "${EXTRA[@]}"; do
       # Make gohttp log folders
       if [ ! -d "/var/log/gohttp" ]; then
         echo "Creating /var/log/gohttp"
-        sudo mkdir -p /var/log/gohttp/
+        mkdir -p /var/log/gohttp/
       fi
-      sudo chown "${uname}" -R /var/log/gohttp/
+      chown "${uname}" -R /var/log/gohttp/
 
       rm gohttpserver_"${GOHTTPLATEST}"_linux_amd64.tar.gz
 
@@ -245,10 +250,10 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 )"
-      echo "${gohttpserver}" | sudo tee /etc/systemd/system/gohttpserver.service > /dev/null
-      sudo systemctl daemon-reload
-      sudo systemctl enable gohttpserver.service
-      sudo systemctl start gohttpserver.service
+      echo "${gohttpserver}" | tee /etc/systemd/system/gohttpserver.service > /dev/null
+      systemctl daemon-reload
+      systemctl enable gohttpserver.service
+      systemctl start gohttpserver.service
 
 
       echo -e "Your IP/DNS Address is ${wanip}"
