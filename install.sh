@@ -5,6 +5,17 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
+check_keystroke() {
+  while [ true ] ; do
+    read -t 3 -n 1
+    if [ $? = 0 ] ; then
+      exit ;
+    else
+      echo "waiting for the keypress"
+    fi
+  done
+}
+
 # Get Username
 uname=$(whoami)
 admintoken=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)
@@ -263,14 +274,8 @@ EOF
       echo -e "Username is admin and password is ${admintoken}"
 
       echo "Press any key to finish install"
-      while [ true ] ; do
-        read -t 3 -n 1
-        if [ $? = 0 ] ; then
-          exit ;
-        else
-          echo "waiting for the keypress"
-        fi
-      done
+      check_keystroke
+
     break
     ;;
 
@@ -280,14 +285,7 @@ EOF
       echo -e "Install Rustdesk on your machines and change your public key and IP/DNS name to the above"
 
       echo "Press any key to finish install"
-      while [ true ] ; do
-        read -t 3 -n 1
-        if [ $? = 0 ] ; then
-          exit ;
-        else
-          echo "waiting for the keypress"
-        fi
-      done
+      check_keystroke
 
     break
     ;;
