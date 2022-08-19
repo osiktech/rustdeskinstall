@@ -76,13 +76,13 @@ PREREQ="curl unzip tar"
 echo "Installing prerequisites"
 if [ "${ID}" = "debian" ] || [ "$OS" = "Ubuntu" ] || [ "$OS" = "Debian" ]  || [ "${UPSTREAM_ID}" = "ubuntu" ] || [ "${UPSTREAM_ID}" = "debian" ]; then
   apt-get update
-  apt-get install -y  ${PREREQ}# git
+  apt-get install -y ${PREREQ} git
 elif [ "$OS" = "CentOS" ] || [ "$OS" = "RedHat" ]   || [ "${UPSTREAM_ID}" = "rhel" ] ; then
   # opensuse 15.4 fails to run the relay service and hangs waiting for it
   # needs more work before it can be enabled
   # || [ "${UPSTREAM_ID}" = "suse" ]
   yum update -y
-  yum install -y  ${PREREQ}# git
+  yum install -y ${PREREQ} git
 else
   echo "Unsupported OS"
   # here you could ask the user for permission to try and install anyway
