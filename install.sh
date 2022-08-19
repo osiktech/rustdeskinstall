@@ -146,50 +146,14 @@ fi
 chown "${username}" -R /var/log/rustdesk/
 
 # Setup Systemd to launch hbbs
-rustdesksignal="$(cat << EOF
-[Unit]
-Description=Rustdesk Signal Server
-[Service]
-Type=simple
-LimitNOFILE=1000000
-ExecStart=/opt/rustdesk/hbbs -k _
-WorkingDirectory=/opt/rustdesk/
-User=${username}
-Group=${username}
-Restart=always
-StandardOutput=append:/var/log/rustdesk/signalserver.log
-StandardError=append:/var/log/rustdesk/signalserver.error
-# Restart service after 10 seconds if node service crashes
-RestartSec=10
-[Install]
-WantedBy=multi-user.target
-EOF
-)"
+rustdesksignal=$(curl https://raw.githubusercontent.com/osiktech/rustdeskinstall/refactor_install.sh/deps/etc/systemd/system/rustdesksignal.service)
 echo "${rustdesksignal}" | tee /etc/systemd/system/rustdesksignal.service > /dev/null
 systemctl daemon-reload
 systemctl enable rustdesksignal.service
 systemctl start rustdesksignal.service
 
 # Setup Systemd to launch hbbr
-rustdeskrelay="$(cat << EOF
-[Unit]
-Description=Rustdesk Relay Server
-[Service]
-Type=simple
-LimitNOFILE=1000000
-ExecStart=/opt/rustdesk/hbbr -k _
-WorkingDirectory=/opt/rustdesk/
-User=${username}
-Group=${username}
-Restart=always
-StandardOutput=append:/var/log/rustdesk/relayserver.log
-StandardError=append:/var/log/rustdesk/relayserver.error
-# Restart service after 10 seconds if node service crashes
-RestartSec=10
-[Install]
-WantedBy=multi-user.target
-EOF
-)"
+rustdeskrelay=$(curl https://raw.githubusercontent.com/osiktech/rustdeskinstall/refactor_install.sh/deps/etc/systemd/system/rustdeskrelay.service)
 echo "${rustdeskrelay}" | tee /etc/systemd/system/rustdeskrelay.service > /dev/null
 systemctl daemon-reload
 systemctl enable rustdeskrelay.service
@@ -250,25 +214,7 @@ select EXTRAOPT in "${EXTRA[@]}"; do
       rm gohttpserver_"${GOHTTPLATEST}"_linux_amd64.tar.gz
 
 # Setup Systemd to launch Go HTTP Server
-gohttpserver="$(cat << EOF
-[Unit]
-Description=Go HTTP Server
-[Service]
-Type=simple
-LimitNOFILE=1000000
-ExecStart=/opt/gohttp/gohttpserver -r ./public --port 8000 --auth-type http --auth-http admin:${admintoken}
-WorkingDirectory=/opt/gohttp/
-User=${username}
-Group=${username}
-Restart=always
-StandardOutput=append:/var/log/gohttp/gohttpserver.log
-StandardError=append:/var/log/gohttp/gohttpserver.error
-# Restart service after 10 seconds if node service crashes
-RestartSec=10
-[Install]
-WantedBy=multi-user.target
-EOF
-)"
+      gohttpserver="$(curl hhttps://raw.githubusercontent.com/osiktech/rustdeskinstall/refactor_install.sh/deps/etc/systemd/system/gohttpserver.service)"
       echo "${gohttpserver}" | tee /etc/systemd/system/gohttpserver.service > /dev/null
       systemctl daemon-reload
       systemctl enable gohttpserver.service
