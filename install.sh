@@ -37,7 +37,6 @@ if [ -f /etc/os-release ]; then
   . /etc/os-release
   OS=$NAME
   VER=$VERSION_ID
-
   UPSTREAM_ID=${ID_LIKE,,}
 
   # Fallback to ID_LIKE if ID was not 'ubuntu' or 'debian'
@@ -85,10 +84,10 @@ fi
 PREREQ="curl unzip tar"
 
 echo "Installing prerequisites"
-if [ "${ID}" = "debian" ] || [ "$OS" = "Ubuntu" ] || [ "$OS" = "Debian" ]  || [ "${UPSTREAM_ID}" = "ubuntu" ] || [ "${UPSTREAM_ID}" = "debian" ]; then
+if [ "${ID}" = "debian" ] || [ "$OS" = "Ubuntu" ] || [ "$OS" = "Debian" ] || [ "${UPSTREAM_ID}" = "ubuntu" ] || [ "${UPSTREAM_ID}" = "debian" ]; then
   apt-get update
   apt-get install -y ${PREREQ}
-elif [ "$OS" = "CentOS" ] || [ "$OS" = "RedHat" ]   || [ "${UPSTREAM_ID}" = "rhel" ] ; then
+elif [ "$OS" = "CentOS" ] || [ "$OS" = "RedHat" ] || [ "${UPSTREAM_ID}" = "rhel" ] ; then
   # opensuse 15.4 fails to run the relay service and hangs waiting for it
   # needs more work before it can be enabled
   # || [ "${UPSTREAM_ID}" = "suse" ]
