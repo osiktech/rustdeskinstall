@@ -27,7 +27,7 @@ create_dir() {
 
 # set username used for rustdesk
 USERNAME=rustdesk
-USERHOME=/opt/$USERHOME
+USERHOME=/opt/$USERNAME
 SCRIPT_URL="https://raw.githubusercontent.com/osiktech/rustdeskinstall/refactor_install.sh"
 ADMINTOKEN=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)
 
